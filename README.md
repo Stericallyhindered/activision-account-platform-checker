@@ -1,3 +1,36 @@
+FFmpeg: FFmpeg is used for handling audio files. Download it from ffmpeg.org and extract it to the specified path in the script (ffmpeg-7.0.1-essentials_build/bin).
+
+
+```
+
+# Create a virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+# On Windows:
+venv\Scripts\activate
+# On Unix or MacOS:
+source venv/bin/activate
+
+# Upgrade pip
+pip install --upgrade pip
+
+# Create requirements.txt file
+echo selenium==4.4.3 > requirements.txt
+echo requests==2.26.0 >> requirements.txt
+echo whisper==1.0 >> requirements.txt
+
+# Install the required packages
+pip install -r requirements.txt
+```
+
+
+
+
+
+
+
+
 This program is designed to automate the process of logging into Activision accounts, solving CAPTCHA challenges, and extracting linked gaming accounts (like PlayStation, Xbox Live, Steam, etc.). It utilizes Selenium for browser automation, Whisper for audio CAPTCHA transcription, and standard Python libraries for handling requests and logging. Below is a detailed breakdown of its functionality and workflow.
 
 Key Components
