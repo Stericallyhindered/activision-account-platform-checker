@@ -1,5 +1,6 @@
-FFmpeg: FFmpeg is used for handling audio files. Download it from ffmpeg.org and extract it to the specified path in the script (ffmpeg-7.0.1-essentials_build/bin).
+lixFFmpeg: FFmpeg is used for handling audio files. Download it from ffmpeg.org and extract it to the specified path in the script (ffmpeg-7.0.1-essentials_build/bin).
 
+save this as a bat file and run it
 
 ```
 
