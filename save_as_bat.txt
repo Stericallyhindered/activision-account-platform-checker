@@ -1,0 +1,28 @@
+@echo off
+REM Ensure Python is installed and added to the PATH
+python --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Python is not installed or not added to the PATH.
+    pause
+    exit /b
+)
+
+REM Create a virtual environment
+python -m venv venv
+
+REM Activate the virtual environment
+call venv\Scripts\activate
+
+REM Upgrade pip
+python -m pip install --upgrade pip
+
+REM Install the required packages
+pip install -r requirements.txt
+
+REM Run the Python script
+python checker.py
+
+REM Deactivate the virtual environment
+deactivate
+
+pause
