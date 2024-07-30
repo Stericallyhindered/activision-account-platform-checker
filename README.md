@@ -40,6 +40,8 @@ email:password
 email:password
 ```
 
+you need to use the newest version of chrome
+
 
 the program will log in, solve the captcha using whisper for free, navigate to the profile and scrape all data related to account linking
 
