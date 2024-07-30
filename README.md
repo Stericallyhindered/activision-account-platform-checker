@@ -25,9 +25,34 @@ pip install -r requirements.txt
 ```
 
 
+accounts.txt
+
+format like this with your known activision accounts
+```
+email:password
+email:password
+email:password
+email:password
+email:password
+email:password
+email:password
+email:password
+```
 
 
+the program will log in, solve the captcha using whisper for free, navigate to the profile and scrape all data related to account linking
 
+it will save your data in 
+
+checkedaccounts.txt like this
+
+```
+email:password/ platform / platform/ platform"
+```
+
+IF the account email or password is bad, it will simply close the browser and load the next.
+
+It would be very easy to modify this program with error handling and logging to use it as a standalone activision account checker, minus stats.
 
 
 
